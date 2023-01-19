@@ -4,40 +4,38 @@ import { useForm } from "react-hook-form"
 export const Dashboard = () => {
     const [post, setPost] = useState()
     const { register, handleSubmit, reset } = useForm()
-    // ........................................Search Filter........................................
-    const [searchField, setSearchField] = useState("")
     const [searchArr, setSearchArr] = useState()
-
-    const onSubmit = (data) => {
-        setSearchField(data)
-    }
-
-    useEffect(() => {
-        const filteredData = post?.filter((el) => {
-            return (
-                searchField.id ? el.id === searchField.id : !searchField.id
-                    &&
-                    searchField.name ? el.name === searchField.name : !searchField.name
-                        &&
-                        searchField.department ? el.department === searchField.department : !searchField.department
-                            &&
-                            searchField.city ? el.city === searchField.city : !searchField.city
-                                &&
-                                searchField.date ? el.createdAt.includes(searchField.date) : !searchField.date
-            )
-
-        })
-        setSearchArr(filteredData)
-    }, [searchField])
-
-
+    
     useEffect(() => {
         fetch("https://63c631bfd307b769673459e0.mockapi.io/get")
-            .then((res) => res.json())
-            .then((json) => {
-                setPost(json)
-            })
+        .then((res) => res.json())
+        .then((json) => {
+            setPost(json)
+            setSearchArr(json)
+        })
     }, [])
+    // ........................................Search Filter........................................
+    const onSubmit = (data) => {
+        const filteredData = post?.filter((el) => {
+            return (
+                data.id ? el.id === data.id : !data.id
+                    &&
+                    data.name ? el.name === data.name : !data.name
+                        &&
+                        data.department ? el.department === data.department : !data.department
+                            &&
+                            data.city ? el.city === data.city : !data.city
+                                &&
+                                data.date ? el.createdAt.includes(data.date) : !data.date
+            )
+        })
+        setSearchArr(filteredData)
+    }
+
+    const clearField = () => {
+        reset()
+        setSearchArr(post)
+    }
 
     return (
         <>
@@ -56,7 +54,7 @@ export const Dashboard = () => {
                         <label>Date</label>
                         <input className='form-control' type="date" {...register("date")} />
                         <button type='submit' className='btn btn-primary m-3' >Submit</button>
-                        <button className='btn btn-danger m-3' onClick={() => reset()}>Clear</button>
+                        <button className='btn btn-danger m-3' onClick={() => clearField()}>Clear</button>
                     </form>
                 </div>
                 
@@ -77,8 +75,7 @@ export const Dashboard = () => {
 
                             </tr>
                         </thead>
-                        {!searchField ?
-                            post?.map((item, i) => {
+                           {searchArr?.map((item, i) => {
                                 return (
                                     <tbody>
                                         <tr key={i}>
@@ -92,24 +89,7 @@ export const Dashboard = () => {
                                     </tbody>
                                 )
                             })
-                            :
-                            searchArr?.map((item, i) => {
-                                return (
-                                    <tbody>
-                                        <tr key={i}>
-                                            <td><img src={item.avatar} alt="" /></td>
-                                            <th scope="row" >{item.id}</th>
-                                            <td>{item.name}</td>
-                                            <td>{item.department}</td>
-                                            <td>{item.createdAt}</td>
-                                            <td>{item.city}</td>
-                                        </tr>
-                                    </tbody>
-                                )
-                            })
-
                         }
-
                     </table>
                 </div>
             </div>
@@ -117,15 +97,3 @@ export const Dashboard = () => {
     )
 }
 
- // if (searchField.name === "" && searchField.date === "") {
-                //     return el
-                // }
-                // else if (searchField.name !== "" && searchField.date) {
-                //     return el.name.toLowerCase().includes(searchField.name.toLowerCase()) && el.createdAt.toLowerCase().includes(searchField.date.toLowerCase())
-                // }
-                // else if (searchField.name !== "" ){
-                //         return el.name.toLowerCase().includes(searchField.name.toLowerCase())
-                //     }
-                // else if (searchField.date !== ""){
-                //     return el.createdAt.toLowerCase().includes(searchField.date.toLowerCase())
-                // }
